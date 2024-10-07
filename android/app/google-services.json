@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "122721619497",
+    "project_id": "nahdi-app",
+    "storage_bucket": "nahdi-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:122721619497:android:f08b81c317995808e15638",
+        "android_client_info": {
+          "package_name": "com.example.nahdy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCU_SCt3XXVYf7TLnY1RaNK_NHGRR1I0k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
