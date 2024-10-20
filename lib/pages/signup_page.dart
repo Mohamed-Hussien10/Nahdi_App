@@ -24,6 +24,7 @@ class _SignUpPageState extends State<SignUpPage> {
   String password = '';
   String phone = '';
   String name = '';
+  String role = 'user';
 
   Future<void> signUp() async {
     try {
@@ -38,6 +39,7 @@ class _SignUpPageState extends State<SignUpPage> {
         'email': email,
         'username': name,
         'phone_number': phone,
+        'role': role,
       });
 
       // Navigate to another screen after sign up

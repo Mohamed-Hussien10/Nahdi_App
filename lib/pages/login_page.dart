@@ -1,8 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:nahdy/admin/add_product_page.dart';
 import 'package:nahdy/components/text_form_field.dart';
 import 'package:nahdy/pages/forgot_password_page.dart';
 import 'package:nahdy/pages/home_page.dart';
@@ -24,20 +26,40 @@ class _LoginPageState extends State<LoginPage> {
   String email = '';
   String password = '';
 
+  //Sign in function
   Future<bool> signIn() async {
     bool valid = false;
     try {
-      await _auth.signInWithEmailAndPassword(
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
+
+      // Fetch user data from Firestore to check if the user is an admin
+      var userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user?.uid)
+          .get();
+
+      if (userDoc.exists && userDoc['role'] == 'admin') {
+        // Navigate to Admin HomePage if the user is an admin
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                const AddProductPage(), // Change this to your Admin home page
+          ),
+        );
+      } else {
+        // Navigate to regular HomePage for non-admin users
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomePage(),
+          ),
+        );
+      }
       valid = true;
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const HomePage(),
-        ),
-      );
     } catch (e) {
       if (kDebugMode) {
         print('Error: $e');
