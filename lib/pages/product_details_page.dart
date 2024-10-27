@@ -5,11 +5,14 @@ class ProductDetailsPage extends StatelessWidget {
   final String title;
   final String imagePath;
   final String price;
+  final String productId; // Add a unique product ID
 
-  ProductDetailsPage({
+  const ProductDetailsPage({
+    super.key,
     required this.title,
     required this.imagePath,
     required this.price,
+    required this.productId,
   });
 
   @override
@@ -23,11 +26,9 @@ class ProductDetailsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
             Container(
-              padding: EdgeInsets.all(5),
+              padding: const EdgeInsets.all(5),
               width: 350,
               height: 250,
               decoration: const BoxDecoration(
@@ -49,7 +50,7 @@ class ProductDetailsPage extends StatelessWidget {
                 Text(
                   '$price \$',
                   style: const TextStyle(fontSize: 18, color: Colors.teal),
-                )
+                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -67,7 +68,7 @@ class ProductDetailsPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: () async {},
+                  onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.teal,
                     shape: RoundedRectangleBorder(
@@ -88,7 +89,11 @@ class ProductDetailsPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                WishlistIcon(),
+                WishlistIcon(
+                  productId: productId,
+                  productName: title,
+                  productImage: imagePath,
+                ),
               ],
             ),
           ],

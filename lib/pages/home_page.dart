@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:nahdy/admin/product_card.dart';
+import 'package:nahdy/pages/wishlist_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -118,6 +119,7 @@ class HomePage extends StatelessWidget {
                         product['name'],
                         product['image_url'],
                         product['price'].toString(),
+                        product['productId'],
                       );
                     },
                   );
@@ -156,7 +158,10 @@ class HomePage extends StatelessWidget {
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),
               onTap: () {
-                // Navigate to Settings
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const WishlistScreen()));
               },
             ),
           ],

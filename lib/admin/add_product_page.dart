@@ -15,7 +15,7 @@ class _AddProductPageState extends State<AddProductPage> {
   String description = '';
   String category = '';
   String imageUrl = '';
-  bool isLoading = false; // Add this line
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -99,16 +99,16 @@ class _AddProductPageState extends State<AddProductPage> {
                 ),
                 const SizedBox(height: 25),
                 ElevatedButton(
-                  onPressed: isLoading // Disable button when loading
+                  onPressed: isLoading
                       ? null
                       : () async {
                           if (_formKey.currentState!.validate()) {
                             setState(() {
-                              isLoading = true; // Set loading state
+                              isLoading = true;
                             });
                             await addProductToFirestore();
                             setState(() {
-                              isLoading = false; // Reset loading state
+                              isLoading = false;
                             });
                           }
                         },
@@ -119,7 +119,7 @@ class _AddProductPageState extends State<AddProductPage> {
                       side: const BorderSide(color: Colors.grey),
                     ),
                   ),
-                  child: isLoading // Show loading indicator or text
+                  child: isLoading
                       ? const Padding(
                           padding: EdgeInsets.symmetric(vertical: 12),
                           child: SizedBox(
@@ -154,9 +154,13 @@ class _AddProductPageState extends State<AddProductPage> {
   }
 
   Future<void> addProductToFirestore() async {
+    // Generate a new document ID for the product
+    final productId =
+        FirebaseFirestore.instance.collection('products').doc().id;
     CollectionReference products =
         FirebaseFirestore.instance.collection('products');
-    await products.add({
+    await products.doc(productId).set({
+      'productId': productId, // Save product ID
       'name': name,
       'price': price,
       'description': description,

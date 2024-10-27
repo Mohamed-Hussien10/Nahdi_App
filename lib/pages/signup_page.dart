@@ -25,6 +25,7 @@ class _SignUpPageState extends State<SignUpPage> {
   String phone = '';
   String name = '';
   String role = 'user';
+  bool isloading = false;
 
   Future<void> signUp() async {
     try {
@@ -199,19 +200,27 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
             const SizedBox(height: 8),
             ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  // If the form is valid, save the form
-                  _formKey.currentState!.save();
-                  signUp();
+              onPressed: isloading
+                  ? null
+                  : () {
+                      if (_formKey.currentState!.validate()) {
+                        setState(() {
+                          isloading = true; // Set loading state
+                        });
+                        // If the form is valid, save the form
+                        _formKey.currentState!.save();
+                        signUp();
 
-                  // Show success message or perform other actions
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text("Form successfully validated")),
-                  );
-                }
-              },
+                        // Show success message or perform other actions
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text("Form successfully validated")),
+                        );
+                        setState(() {
+                          isloading = false; // Reset loading state
+                        });
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.teal,
                 shape: RoundedRectangleBorder(
@@ -219,18 +228,31 @@ class _SignUpPageState extends State<SignUpPage> {
                   side: const BorderSide(color: Colors.grey),
                 ),
               ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                child: Text(
-                  'Sign Up',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22,
-                    letterSpacing: 2,
-                  ),
-                ),
-              ),
+              child: isloading
+                  ? const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                          color: Colors.teal,
+                          strokeWidth: 5,
+                        ),
+                      ),
+                    )
+                  : const Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                      child: Text(
+                        'Sign Up',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                    ),
             ),
             const SizedBox(height: 14),
             Row(

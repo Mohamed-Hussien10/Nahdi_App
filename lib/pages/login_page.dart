@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nahdy/admin/add_product_page.dart';
+import 'package:nahdy/admin/main_admin_page.dart';
 import 'package:nahdy/components/text_form_field.dart';
 import 'package:nahdy/pages/forgot_password_page.dart';
 import 'package:nahdy/pages/home_page.dart';
@@ -25,6 +26,7 @@ class _LoginPageState extends State<LoginPage> {
 
   String email = '';
   String password = '';
+  bool isLoading = false; // Add this line
 
   //Sign in function
   Future<bool> signIn() async {
@@ -47,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                const AddProductPage(), // Change this to your Admin home page
+                const MainAdminPage(), // Change this to your Admin home page
           ),
         );
       } else {
@@ -170,25 +172,37 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 35),
                       ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            // If the form is valid, save the form
-                            _formKey.currentState!.save();
-                            if (await signIn()) {
-                              // Show success message or perform other actions
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text("Login successful")),
-                              );
-                            } else {
-                              // Show success message or perform other actions
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text("Invalid email or password")),
-                              );
-                            }
-                          }
-                        },
+                        onPressed: isLoading // Disable button when loading
+                            ? null
+                            : () async {
+                                if (_formKey.currentState!.validate()) {
+                                  setState(() {
+                                    isLoading = true; // Set loading state
+                                  });
+                                  // If the form is valid, save the form
+                                  _formKey.currentState!.save();
+                                  if (await signIn()) {
+                                    setState(() {
+                                      isLoading = false; // Reset loading state
+                                    });
+                                    // Show success message or perform other actions
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text("Login successful")),
+                                    );
+                                  } else {
+                                    setState(() {
+                                      isLoading = false; // Reset loading state
+                                    });
+                                    // Show success message or perform other actions
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              "Invalid email or password")),
+                                    );
+                                  }
+                                }
+                              },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.teal,
                           shape: RoundedRectangleBorder(
@@ -196,19 +210,31 @@ class _LoginPageState extends State<LoginPage> {
                             side: const BorderSide(color: Colors.grey),
                           ),
                         ),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 50, vertical: 12),
-                          child: Text(
-                            'Login',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 22,
-                              letterSpacing: 2,
-                            ),
-                          ),
-                        ),
+                        child: isLoading
+                            ? const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                child: SizedBox(
+                                  height: 22,
+                                  width: 22,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.teal,
+                                    strokeWidth: 5,
+                                  ),
+                                ),
+                              )
+                            : const Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 50, vertical: 12),
+                                child: Text(
+                                  'Login',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 22,
+                                    letterSpacing: 2,
+                                  ),
+                                ),
+                              ),
                       ),
                       const SizedBox(height: 13),
                       InkWell(

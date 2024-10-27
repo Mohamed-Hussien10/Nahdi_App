@@ -1,15 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class WishlistIcon extends StatefulWidget {
-  const WishlistIcon({super.key});
+  final String productId;
+  final String productName;
+  final String productImage;
+  final Function(bool)? onWishlistChanged; // Optional callback for changes
+
+  const WishlistIcon({
+    super.key,
+    required this.productId,
+    required this.productName,
+    required this.productImage,
+    this.onWishlistChanged,
+  });
 
   @override
-  // ignore: library_private_types_in_public_api
   _WishlistIconState createState() => _WishlistIconState();
 }
 
 class _WishlistIconState extends State<WishlistIcon> {
   bool isWishlisted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadWishlistStatus();
+  }
+
+  // Load wishlist status from SharedPreferences
+  Future<void> _loadWishlistStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final productData = prefs.getString(widget.productId);
+
+    setState(() {
+      // Set isWishlisted based on whether productData exists
+      isWishlisted = productData != null;
+    });
+  }
+
+  // Toggle wishlist status and save product data to SharedPreferences
+  Future<void> _toggleWishlistStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final newStatus = !isWishlisted;
+
+    setState(() {
+      isWishlisted = newStatus;
+    });
+
+    if (newStatus) {
+      // Add product to wishlist
+      final productData = jsonEncode({
+        'id': widget.productId,
+        'name': widget.productName,
+        'image': widget.productImage,
+      });
+      await prefs.setString(widget.productId, productData);
+    } else {
+      // Remove product from wishlist
+      await prefs.remove(widget.productId);
+    }
+
+    if (widget.onWishlistChanged != null) {
+      widget.onWishlistChanged!(newStatus);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,19 +74,16 @@ class _WishlistIconState extends State<WishlistIcon> {
       width: 55,
       height: 55,
       decoration: const BoxDecoration(
-          color: Color(0xffE8E8E8),
-          borderRadius: BorderRadius.all(Radius.circular(10))),
+        color: Color(0xffE8E8E8),
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
       child: IconButton(
         icon: Icon(
-          size: 35,
           isWishlisted ? Icons.favorite : Icons.favorite_border,
           color: isWishlisted ? Colors.red : Colors.grey,
+          size: 35,
         ),
-        onPressed: () {
-          setState(() {
-            isWishlisted = !isWishlisted;
-          });
-        },
+        onPressed: _toggleWishlistStatus,
       ),
     );
   }

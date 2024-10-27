@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nahdy/pages/product_details_page.dart';
 
-Widget productCard(
-    BuildContext context, String title, String imagePath, String price) {
+Widget productCard(BuildContext context, String title, String imagePath,
+    String price, String productId) {
   return InkWell(
     onTap: () {
       Navigator.push(
@@ -12,6 +12,7 @@ Widget productCard(
             title: title,
             imagePath: imagePath,
             price: price,
+            productId: productId,
           ),
         ),
       );
