@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:nahdy/admin/add_product_page.dart';
 import 'package:nahdy/admin/main_admin_page.dart';
 import 'package:nahdy/components/text_form_field.dart';
 import 'package:nahdy/pages/forgot_password_page.dart';

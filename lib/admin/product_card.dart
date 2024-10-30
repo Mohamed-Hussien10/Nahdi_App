@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:nahdy/components/cart_provider.dart';
 import 'package:nahdy/pages/product_details_page.dart';
+import 'package:provider/provider.dart';
 
 Widget productCard(BuildContext context, String title, String imagePath,
     String price, String productId) {
@@ -35,6 +37,7 @@ Widget productCard(BuildContext context, String title, String imagePath,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          const SizedBox(height: 10),
           Image.network(imagePath, height: 100, fit: BoxFit.cover),
           const SizedBox(height: 10),
           Text(
@@ -49,9 +52,31 @@ Widget productCard(BuildContext context, String title, String imagePath,
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () {
-              // Add to Cart functionality
+              Provider.of<Cart>(context, listen: false).addProduct(
+                productId,
+                title,
+                price,
+                imagePath,
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Added to Cart!")),
+              );
             },
-            child: const Text('Add to Cart'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.teal,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            ),
+            child: const Text(
+              'Add to Cart',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),

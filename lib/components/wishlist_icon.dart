@@ -6,6 +6,7 @@ class WishlistIcon extends StatefulWidget {
   final String productId;
   final String productName;
   final String productImage;
+  final String productPrice;
   final Function(bool)? onWishlistChanged; // Optional callback for changes
 
   const WishlistIcon({
@@ -13,6 +14,7 @@ class WishlistIcon extends StatefulWidget {
     required this.productId,
     required this.productName,
     required this.productImage,
+    required this.productPrice,
     this.onWishlistChanged,
   });
 
@@ -55,6 +57,7 @@ class _WishlistIconState extends State<WishlistIcon> {
         'id': widget.productId,
         'name': widget.productName,
         'image': widget.productImage,
+        'price': widget.productPrice,
       });
       await prefs.setString(widget.productId, productData);
     } else {

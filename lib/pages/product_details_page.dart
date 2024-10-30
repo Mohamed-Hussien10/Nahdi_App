@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:nahdy/components/cart_provider.dart';
 import 'package:nahdy/components/wishlist_icon.dart';
+import 'package:provider/provider.dart';
 
 class ProductDetailsPage extends StatelessWidget {
   final String title;
@@ -68,7 +70,17 @@ class ProductDetailsPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Provider.of<Cart>(context, listen: false).addProduct(
+                      productId,
+                      title,
+                      price,
+                      imagePath,
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Added to Cart!")),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.teal,
                     shape: RoundedRectangleBorder(
@@ -93,6 +105,7 @@ class ProductDetailsPage extends StatelessWidget {
                   productId: productId,
                   productName: title,
                   productImage: imagePath,
+                  productPrice: price,
                 ),
               ],
             ),

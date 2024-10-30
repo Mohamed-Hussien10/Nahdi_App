@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:nahdy/admin/product_card.dart';
+import 'package:nahdy/pages/cart_page.dart';
 import 'package:nahdy/pages/wishlist_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -31,71 +32,45 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        children: [
-          // Welcome Banner
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.teal[100],
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: const Offset(0, 3),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Welcome Banner
+            Container(
+                // Existing Welcome Banner code
                 ),
-              ],
-            ),
-            padding: const EdgeInsets.all(20.0),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Welcome to Medical Supplies',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Find the best medical equipment and supplies at affordable prices!',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-          // Categories Section
-          const Text(
-            'Categories',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(
-            height: 100,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                categoryCard('Masks', Icons.masks),
-                categoryCard('Gloves', Icons.handshake),
-                categoryCard('Syringes', Icons.local_hospital),
-                categoryCard('Thermometers', Icons.thermostat),
-              ],
+            // Categories Section
+            const Text(
+              'Categories',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-          ),
-          const SizedBox(height: 20),
+            SizedBox(
+              height: 100,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  categoryCard('Masks', Icons.masks),
+                  categoryCard('Gloves', Icons.handshake),
+                  categoryCard('Syringes', Icons.local_hospital),
+                  categoryCard('Thermometers', Icons.thermostat),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
 
-          // Featured Products
-          const Text(
-            'Featured Products',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          SizedBox(
-            height: 300,
-            child: StreamBuilder<QuerySnapshot>(
+            // Featured Products Section
+            const Text(
+              'Featured Products',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+
+            // Products Grid
+            StreamBuilder<QuerySnapshot>(
               stream: products.snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -106,6 +81,9 @@ class HomePage extends StatelessWidget {
                   return const Center(child: Text('No products available.'));
                 } else {
                   return GridView.builder(
+                    physics:
+                        const NeverScrollableScrollPhysics(), // Prevents internal scrolling
+                    shrinkWrap: true, // Fits to content size
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
@@ -126,8 +104,8 @@ class HomePage extends StatelessWidget {
                 }
               },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       drawer: Drawer(
         child: ListView(
@@ -148,15 +126,16 @@ class HomePage extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.account_circle),
-              title: const Text('Profile'),
+              leading: const Icon(Icons.card_travel),
+              title: const Text('Cart'),
               onTap: () {
-                // Navigate to Profile
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const CartPage()));
               },
             ),
             ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
+              leading: const Icon(Icons.heart_broken),
+              title: const Text('Wishlist'),
               onTap: () {
                 Navigator.push(
                     context,
