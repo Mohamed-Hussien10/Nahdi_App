@@ -3,14 +3,42 @@ import 'package:flutter/material.dart';
 import 'package:nahdy/admin/product_card.dart';
 import 'package:nahdy/pages/cart_page.dart';
 import 'package:nahdy/pages/wishlist_page.dart';
+import 'package:nahdy/pages/profile_page.dart'; // Import Profile Page
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+
+  final CollectionReference products =
+      FirebaseFirestore.instance.collection('products');
+
+  // Method to update the selected tab index
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    // Navigate to selected page
+    if (index == 1) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const CartPage()));
+    } else if (index == 2) {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const WishlistScreen()));
+    } else if (index == 3) {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const ProfilePage()));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final CollectionReference products =
-        FirebaseFirestore.instance.collection('products');
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -23,128 +51,109 @@ class HomePage extends StatelessWidget {
         ),
         backgroundColor: Colors.teal,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            onPressed: () {
-              // Navigate to Cart Page
+      ),
+      body: _buildBody(),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed, // Fixes the bar and centers items
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Wishlist',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.teal,
+        unselectedItemColor: Colors.black,
+        showUnselectedLabels: true,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Welcome Banner
+          Container(
+              // Existing Welcome Banner code
+              ),
+          const SizedBox(height: 20),
+
+          // Categories Section
+          const Text(
+            'Categories',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(
+            height: 100,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                categoryCard('Masks', Icons.masks),
+                categoryCard('Gloves', Icons.handshake),
+                categoryCard('Syringes', Icons.local_hospital),
+                categoryCard('Thermometers', Icons.thermostat),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Featured Products Section
+          const Text(
+            'Featured Products',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+
+          // Products Grid
+          StreamBuilder<QuerySnapshot>(
+            stream: products.snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return const Center(child: Text('Error fetching products.'));
+              } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const Center(child: Text('No products available.'));
+              } else {
+                return GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.80,
+                  ),
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    var product = snapshot.data!.docs[index];
+                    return productCard(
+                      context,
+                      product['name'],
+                      product['image_url'],
+                      product['price'].toString(),
+                      product['productId'],
+                    );
+                  },
+                );
+              }
             },
           ),
         ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Welcome Banner
-            Container(
-                // Existing Welcome Banner code
-                ),
-            const SizedBox(height: 20),
-
-            // Categories Section
-            const Text(
-              'Categories',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 100,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  categoryCard('Masks', Icons.masks),
-                  categoryCard('Gloves', Icons.handshake),
-                  categoryCard('Syringes', Icons.local_hospital),
-                  categoryCard('Thermometers', Icons.thermostat),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Featured Products Section
-            const Text(
-              'Featured Products',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-
-            // Products Grid
-            StreamBuilder<QuerySnapshot>(
-              stream: products.snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return const Center(child: Text('Error fetching products.'));
-                } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Text('No products available.'));
-                } else {
-                  return GridView.builder(
-                    physics:
-                        const NeverScrollableScrollPhysics(), // Prevents internal scrolling
-                    shrinkWrap: true, // Fits to content size
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.80,
-                    ),
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (context, index) {
-                      var product = snapshot.data!.docs[index];
-                      return productCard(
-                        context,
-                        product['name'],
-                        product['image_url'],
-                        product['price'].toString(),
-                        product['productId'],
-                      );
-                    },
-                  );
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.teal),
-              child: Text(
-                'Hello, User!',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Home'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.card_travel),
-              title: const Text('Cart'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const CartPage()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.heart_broken),
-              title: const Text('Wishlist'),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const WishlistScreen()));
-              },
-            ),
-          ],
-        ),
       ),
     );
   }

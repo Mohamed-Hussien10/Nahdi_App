@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nahdy/admin/add_product_page.dart';
+import 'package:nahdy/admin/customers_orders.dart';
 
 class MainAdminPage extends StatelessWidget {
   const MainAdminPage({super.key});
@@ -55,7 +56,7 @@ class MainAdminPage extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const AddProductPage()));
+                        builder: (context) => const CustomersOrders()));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.teal,
