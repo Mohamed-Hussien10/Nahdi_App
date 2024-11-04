@@ -38,7 +38,7 @@ Widget productCard(BuildContext context, String title, String imagePath,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 10),
-          Image.network(imagePath, height: 100, fit: BoxFit.cover),
+          Image.network(imagePath, height: 75, fit: BoxFit.cover),
           const SizedBox(height: 10),
           Text(
             title,

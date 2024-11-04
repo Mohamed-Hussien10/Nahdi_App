@@ -33,7 +33,6 @@ class _CustomersOrdersState extends State<CustomersOrders> {
                 } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return const Center(child: Text('No orders found.'));
                 } else {
-                  // Filter the orders based on the search query
                   var orders = snapshot.data!.docs.where((order) {
                     var recipientName = order['recipientName'] as String;
                     return recipientName
@@ -41,7 +40,6 @@ class _CustomersOrdersState extends State<CustomersOrders> {
                         .contains(searchQuery.toLowerCase());
                   }).toList();
 
-                  // Display the list of filtered orders
                   return ListView.builder(
                     itemCount: orders.length,
                     itemBuilder: (context, index) {
@@ -86,7 +84,6 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Retrieve order details
     final cartItems = order['cartItems'] as List;
     final phoneNumber = order['phoneNumber'] as String;
     final recipientName = order['recipientName'] as String;
@@ -117,8 +114,7 @@ class OrderCard extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    // Logic to confirm the order
-                    _confirmOrder(order.id);
+                    _confirmOrder(context, order.id, cartItems);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
@@ -136,8 +132,7 @@ class OrderCard extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // Logic to cancel the order
-                    _cancelOrder(order.id);
+                    _cancelOrder(context, order.id, cartItems);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
@@ -161,26 +156,64 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  void _confirmOrder(String orderId) {
-    // Logic to update the order status to confirmed
-    FirebaseFirestore.instance.collection('orders').doc(orderId).update({
-      'status': 'confirmed',
-    }).then((_) {
-      print("Order $orderId confirmed.");
-    }).catchError((error) {
+  void _confirmOrder(
+      BuildContext context, String orderId, List cartItems) async {
+    try {
+      // Update order status to confirmed
+      await FirebaseFirestore.instance
+          .collection('orders')
+          .doc(orderId)
+          .update({
+        'status': 'confirmed',
+      });
+
+      // Update product stock for each item in the order
+      for (var item in cartItems) {
+        String productId = item['id']; // Assuming 'id' is the product ID
+        int quantity = item['quantity'];
+
+        // Decrease the stock
+        await FirebaseFirestore.instance
+            .collection('products')
+            .doc(productId)
+            .update({
+          'stock': FieldValue.increment(-quantity), // Decrement the stock
+        });
+      }
+
+      // Remove the order from the customer's orders collection
+      await _removeOrderFromCustomer(orderId);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Order confirmed!')));
+    } catch (error) {
       print("Failed to confirm order: $error");
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to confirm order.')));
+    }
+  }
+
+  Future<void> _removeOrderFromCustomer(String orderId) async {
+    await FirebaseFirestore.instance
+        .collection('orders')
+        .doc(orderId)
+        .delete()
+        .catchError((error) {
+      print("Failed to remove order from customer: $error");
     });
   }
 
-  void _cancelOrder(String orderId) {
-    // Logic to update the order status to canceled
-    FirebaseFirestore.instance.collection('orders').doc(orderId).update({
-      'status': 'canceled',
-    }).then((_) {
-      print("Order $orderId canceled.");
-    }).catchError((error) {
+  void _cancelOrder(
+      BuildContext context, String orderId, List cartItems) async {
+    // Remove the order from the customer's orders collection
+    try {
+      await _removeOrderFromCustomer(orderId);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Order canceled!')));
+    } catch (error) {
       print("Failed to cancel order: $error");
-    });
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to cancel order.')));
+    }
   }
 }
 

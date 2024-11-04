@@ -15,6 +15,7 @@ class _AddProductPageState extends State<AddProductPage> {
   String description = '';
   String category = '';
   String imageUrl = '';
+  int stock = 0; // Added stock field
   bool isLoading = false;
 
   @override
@@ -97,6 +98,25 @@ class _AddProductPageState extends State<AddProductPage> {
                     return null;
                   },
                 ),
+                // New Stock Quantity Field
+                TextFormField(
+                  decoration: const InputDecoration(
+                      labelText: 'Stock Quantity',
+                      hintText: 'Enter product\'s stock quantity'),
+                  keyboardType: TextInputType.number,
+                  onChanged: (val) {
+                    setState(() => stock = int.tryParse(val) ?? 0);
+                  },
+                  validator: (val) {
+                    if (val == null || val.isEmpty) {
+                      return 'Please enter a stock quantity';
+                    }
+                    if (int.tryParse(val) == null) {
+                      return 'Please enter a valid stock quantity';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 25),
                 ElevatedButton(
                   onPressed: isLoading
@@ -166,6 +186,7 @@ class _AddProductPageState extends State<AddProductPage> {
       'description': description,
       'category': category,
       'image_url': imageUrl,
+      'stock': stock, // Save stock quantity
     });
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text('Product Added')));
