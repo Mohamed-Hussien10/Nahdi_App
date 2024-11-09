@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -14,7 +12,6 @@ class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _LoginPageState createState() => _LoginPageState();
 }
 
@@ -25,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
 
   String email = '';
   String password = '';
-  bool isLoading = false; // Add this line
+  bool isLoading = false;
 
   //Sign in function
   Future<bool> signIn() async {
@@ -36,23 +33,19 @@ class _LoginPageState extends State<LoginPage> {
         password: password,
       );
 
-      // Fetch user data from Firestore to check if the user is an admin
       var userDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(userCredential.user?.uid)
           .get();
 
       if (userDoc.exists && userDoc['role'] == 'admin') {
-        // Navigate to Admin HomePage if the user is an admin
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                const MainAdminPage(), // Change this to your Admin home page
+            builder: (context) => const MainAdminPage(),
           ),
         );
       } else {
-        // Navigate to regular HomePage for non-admin users
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -73,218 +66,217 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffE0F2F1),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 100),
-        child: Center(
-          child: Column(
-            children: [
-              const Column(
-                children: [
-                  CircleAvatar(
-                    radius: 80,
-                    backgroundColor: Colors.transparent,
-                    child: Image(
-                      image: AssetImage(
-                        'assets/images/logo.png',
-                      ),
-                    ),
-                  ),
-                  Text(
-                    'Alnahdi',
-                    style: TextStyle(
-                      fontFamily: 'Pacifico',
-                      letterSpacing: 3,
-                      color: Colors.red,
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    'For Midecal Serives',
-                    style: TextStyle(
-                      letterSpacing: 2,
-                      color: Colors.blueGrey,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 25),
-              Form(
-                key: _formKey,
-                child: Container(
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 2, horizontal: 35),
-                  child: Column(
-                    children: [
-                      TextFField(
-                        const Icon(
-                          Icons.email,
-                          color: Colors.black,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(top: 100),
+          child: Center(
+            child: Column(
+              children: [
+                const Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 80,
+                      backgroundColor: Colors.transparent,
+                      child: Image(
+                        image: AssetImage(
+                          'assets/images/logo.png',
                         ),
-                        'Email',
-                        'Enter your email',
-                        TextInputType.emailAddress,
-                        false,
-                        (value) {
-                          if (value!.isEmpty) {
-                            return 'Email is required';
-                          }
-                          if (!RegExp(
-                                  r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-                              .hasMatch(value)) {
-                            return 'Invalid email address';
-                          }
-                          return null;
-                        },
-                        (context) {
-                          email = context!;
-                          return null;
-                        },
                       ),
-                      const SizedBox(
-                        height: 25,
+                    ),
+                    Text(
+                      'Alnahdi',
+                      style: TextStyle(
+                        fontFamily: 'Pacifico',
+                        letterSpacing: 3,
+                        color: Colors.red,
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
                       ),
-                      TextFField(
-                        const Icon(
-                          Icons.lock,
-                          color: Colors.black,
+                    ),
+                    Text(
+                      'For Medical Services',
+                      style: TextStyle(
+                        letterSpacing: 2,
+                        color: Colors.blueGrey,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 25),
+                Form(
+                  key: _formKey,
+                  child: Container(
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 2, horizontal: 35),
+                    child: Column(
+                      children: [
+                        TextFField(
+                          const Icon(
+                            Icons.email,
+                            color: Colors.black,
+                          ),
+                          'Email',
+                          'Enter your email',
+                          TextInputType.emailAddress,
+                          false,
+                          (value) {
+                            if (value!.isEmpty) {
+                              return 'Email is required';
+                            }
+                            if (!RegExp(
+                                    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+                                .hasMatch(value)) {
+                              return 'Invalid email address';
+                            }
+                            return null;
+                          },
+                          (context) {
+                            email = context!;
+                            return null;
+                          },
                         ),
-                        'Password',
-                        'Enter your password',
-                        TextInputType.visiblePassword,
-                        true,
-                        (value) {
-                          if (value!.isEmpty) {
-                            return 'Password is required';
-                          }
-                          if (value.length < 6) {
-                            return 'Password must be at least 6 characters long';
-                          }
-                          return null;
-                        },
-                        (context) {
-                          password = context!;
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 35),
-                      ElevatedButton(
-                        onPressed: isLoading // Disable button when loading
-                            ? null
-                            : () async {
-                                if (_formKey.currentState!.validate()) {
-                                  setState(() {
-                                    isLoading = true; // Set loading state
-                                  });
-                                  // If the form is valid, save the form
-                                  _formKey.currentState!.save();
-                                  if (await signIn()) {
+                        const SizedBox(height: 25),
+                        TextFField(
+                          const Icon(
+                            Icons.lock,
+                            color: Colors.black,
+                          ),
+                          'Password',
+                          'Enter your password',
+                          TextInputType.visiblePassword,
+                          true,
+                          (value) {
+                            if (value!.isEmpty) {
+                              return 'Password is required';
+                            }
+                            if (value.length < 6) {
+                              return 'Password must be at least 6 characters long';
+                            }
+                            return null;
+                          },
+                          (context) {
+                            password = context!;
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 35),
+                        ElevatedButton(
+                          onPressed: isLoading
+                              ? null
+                              : () async {
+                                  if (_formKey.currentState!.validate()) {
                                     setState(() {
-                                      isLoading = false; // Reset loading state
+                                      isLoading = true;
                                     });
-                                    // Show success message or perform other actions
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text("Login successful")),
-                                    );
-                                  } else {
-                                    setState(() {
-                                      isLoading = false; // Reset loading state
-                                    });
-                                    // Show success message or perform other actions
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text(
-                                              "Invalid email or password")),
-                                    );
+                                    _formKey.currentState!.save();
+                                    if (await signIn()) {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text("Login successful")),
+                                      );
+                                    } else {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                "Invalid email or password")),
+                                      );
+                                    }
                                   }
-                                }
-                              },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.teal,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side: const BorderSide(color: Colors.grey),
-                          ),
-                        ),
-                        child: isLoading
-                            ? const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 12),
-                                child: SizedBox(
-                                  height: 22,
-                                  width: 22,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.teal,
-                                    strokeWidth: 5,
-                                  ),
-                                ),
-                              )
-                            : const Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 50, vertical: 12),
-                                child: Text(
-                                  'Login',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 22,
-                                    letterSpacing: 2,
-                                  ),
-                                ),
-                              ),
-                      ),
-                      const SizedBox(height: 13),
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ForgotPassword(),
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.teal,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: const BorderSide(color: Colors.grey),
                             ),
-                          );
-                        },
-                        child: const Text(
-                          'Forgot Password?',
-                          style: TextStyle(
-                            color: Colors.red,
                           ),
+                          child: isLoading
+                              ? const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 12),
+                                  child: SizedBox(
+                                    height: 22,
+                                    width: 22,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.teal,
+                                      strokeWidth: 5,
+                                    ),
+                                  ),
+                                )
+                              : const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 50, vertical: 12),
+                                  child: Text(
+                                    'Login',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 22,
+                                      letterSpacing: 2,
+                                    ),
+                                  ),
+                                ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Don\'t have an account?',
+                        const SizedBox(height: 13),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ForgotPassword(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Forgot Password?',
                             style: TextStyle(
-                              color: Colors.black,
+                              color: Colors.red,
                             ),
                           ),
-                          InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const SignUpPage(),
-                                ),
-                              );
-                            },
-                            child: const Text(
-                              ' Sign up.',
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Don\'t have an account?',
                               style: TextStyle(
-                                color: Colors.blueAccent,
+                                color: Colors.black,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                            InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const SignUpPage(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                ' Sign up.',
+                                style: TextStyle(
+                                  color: Colors.blueAccent,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              )
-            ],
+              ],
+            ),
           ),
         ),
       ),
