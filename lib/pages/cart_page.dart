@@ -15,9 +15,29 @@ class CartPage extends StatelessWidget {
         .fold(0.0, (sum, item) => sum + item['price'] * item['quantity']);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Cart")),
+      appBar: AppBar(
+        title: const Text(
+          'Cart',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.teal, // Custom background color for app bar
+        elevation: 4.0, // Add slight elevation for better contrast
+        centerTitle: true, // Centers the title in the app bar
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(
+                20), // Rounded corners at the bottom of the app bar
+          ),
+        ),
+        automaticallyImplyLeading: false, // Removes the back icon
+      ),
       body: Column(
         children: [
+          const SizedBox(height: 15),
           Expanded(
             child: ListView.builder(
               itemCount: cart.items.length,

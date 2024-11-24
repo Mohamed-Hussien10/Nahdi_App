@@ -79,56 +79,106 @@ class _ReceiptPageState extends State<ReceiptPage> {
         pw.Page(
           build: (pw.Context context) {
             return pw.Center(
-              // This centers the entire column
               child: pw.Column(
-                mainAxisAlignment: pw
-                    .MainAxisAlignment.center, // Vertically center the content
-                crossAxisAlignment: pw.CrossAxisAlignment
-                    .center, // Horizontally center the content
+                mainAxisAlignment: pw.MainAxisAlignment.start,
+                crossAxisAlignment:
+                    pw.CrossAxisAlignment.center, // Center alignment
                 children: [
+                  // Logo centered at the top
                   pw.Image(image, width: 150, height: 150),
-                  pw.SizedBox(height: 10),
+                  pw.SizedBox(height: 15),
+                  // Store name centered
                   pw.Text(
                     widget.storeName,
                     style: pw.TextStyle(
-                        fontSize: 24, fontWeight: pw.FontWeight.bold),
+                      fontSize: 24,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                    textAlign: pw.TextAlign.center, // Center align text
                   ),
+                  // Date aligned below store name, also centered
                   pw.Text(
                     'Date: ${DateFormat('yyyy-MM-dd hh:mm a').format(DateTime.now())}',
+                    style: const pw.TextStyle(fontSize: 14),
+                    textAlign: pw.TextAlign.center, // Center align date
                   ),
-                  pw.Text('Recipient: ${widget.recipientName}'),
-                  pw.Text('Address: ${widget.address}'),
-                  pw.Text('Phone: ${widget.phoneNumber}'),
                   pw.SizedBox(height: 20),
+                  // Recipient details with left alignment
                   pw.Text(
-                    'Itemized Receipt',
-                    style: pw.TextStyle(
-                        fontSize: 18, fontWeight: pw.FontWeight.bold),
+                    'Recipient: ${widget.recipientName}',
+                    style: const pw.TextStyle(fontSize: 16),
                   ),
-                  pw.SizedBox(height: 10),
-                  // Add a fixed height for the item list
-                  pw.SizedBox(
-                    height: 200, // Set a fixed height for the item list
-                    child: pw.ListView(
-                      children: widget.cartItems.map((item) {
-                        double itemTotal = (item['price'] as num).toDouble() *
-                            (item['quantity'] as num).toInt();
-                        return pw.Text(
-                          '${item['title']} - Quantity: ${item['quantity']} x \$${item['price']} = \$${itemTotal.toStringAsFixed(2)}',
-                          textAlign:
-                              pw.TextAlign.center, // Center text for each item
-                        );
-                      }).toList(),
+                  pw.Text(
+                    'Address: ${widget.address}',
+                    style: const pw.TextStyle(fontSize: 16),
+                  ),
+                  pw.Text(
+                    'Phone: ${widget.phoneNumber}',
+                    style: const pw.TextStyle(fontSize: 16),
+                  ),
+                  pw.SizedBox(height: 20),
+                  // Items section
+                  pw.Text(
+                    'Items:',
+                    style: pw.TextStyle(
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
                     ),
                   ),
-                  pw.SizedBox(height: 20),
-                  pw.Text(
-                    'Total: \$${widget.cartItems.fold<double>(0, (sum, item) => sum + (item['price'] as num).toDouble() * (item['quantity'] as num).toInt()).toStringAsFixed(2)}',
-                    style: pw.TextStyle(
-                        fontSize: 18, fontWeight: pw.FontWeight.bold),
+                  pw.SizedBox(height: 10),
+                  // List of items
+                  pw.ListView(
+                    children: widget.cartItems.map((item) {
+                      double itemTotal = (item['price'] as num).toDouble() *
+                          (item['quantity'] as num).toInt();
+                      return pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                        children: [
+                          pw.Text(item['title']),
+                          pw.Text(
+                            'x${item['quantity']} - \$${item['price']}',
+                            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                          ),
+                          pw.Text(
+                            '\$${itemTotal.toStringAsFixed(2)}',
+                            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                          ),
+                        ],
+                      );
+                    }).toList(),
                   ),
                   pw.SizedBox(height: 20),
-                  pw.Text('Thank you for shopping with us!'),
+                  pw.Divider(),
+                  pw.SizedBox(height: 10),
+                  // Total section
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Text(
+                        'Total',
+                        style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
+                      pw.Text(
+                        '\$${widget.cartItems.fold<double>(0, (sum, item) => sum + (item['price'] as num).toDouble() * (item['quantity'] as num).toInt()).toStringAsFixed(2)}',
+                        style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  pw.SizedBox(height: 20),
+                  // Closing message
+                  pw.Text(
+                    'Thank you for shopping with us!',
+                    style: pw.TextStyle(
+                      fontSize: 16,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
             );
@@ -202,29 +252,41 @@ class _ReceiptPageState extends State<ReceiptPage> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Receipt')),
+      appBar: AppBar(
+        title: const Text('Receipt'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-                child: Text(widget.storeName,
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold))),
+            // Store Name
             Center(
                 child: Text(
-                    DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()),
-                    style: const TextStyle(fontSize: 16))),
-            const Divider(thickness: 1),
-            Text('Recipient: ${widget.recipientName}'),
-            Text('Address: ${widget.address}'),
-            Text('Phone: ${widget.phoneNumber}'),
-            const Divider(thickness: 1),
-            const Text(
-              'Itemized Receipt',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+              widget.storeName,
+              style: const TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.teal),
+            )),
+            // Date
+            Center(
+                child: Text(
+              DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()),
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
+            )),
+            const Divider(thickness: 1, color: Colors.grey),
+            // Recipient Details
+            Text('Recipient: ${widget.recipientName}',
+                style: const TextStyle(fontSize: 16)),
+            Text('Address: ${widget.address}',
+                style: const TextStyle(fontSize: 16)),
+            Text('Phone: ${widget.phoneNumber}',
+                style: const TextStyle(fontSize: 16)),
+            const Divider(thickness: 1, color: Colors.grey),
+            // Items List
+            const Text('Items:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
@@ -233,50 +295,57 @@ class _ReceiptPageState extends State<ReceiptPage> {
                   final item = widget.cartItems[index];
                   double itemTotal = (item['price'] as num).toDouble() *
                       (item['quantity'] as num).toInt();
-                  return ListTile(
-                    title: Text(item['title']),
-                    subtitle: Text('Quantity: ${item['quantity']}'),
-                    trailing: Text('\$${itemTotal.toStringAsFixed(2)}'),
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: ListTile(
+                      title: Text(item['title']),
+                      subtitle:
+                          Text('x${item['quantity']} - \$${item['price']}'),
+                      trailing: Text('\$${itemTotal.toStringAsFixed(2)}'),
+                    ),
                   );
                 },
               ),
             ),
-            const Divider(thickness: 1),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Total',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  '\$${totalPrice.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ],
+            const Divider(thickness: 1, color: Colors.grey),
+            // Total Price
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Total',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    '\$${totalPrice.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                await _downloadReceipt(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: const Text(
-                'Download Receipt',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            const SizedBox(height: 10),
+            // Download Button
             Center(
-              child: Text(
-                'Thank you for shopping with us!',
-                style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+              child: ElevatedButton(
+                onPressed: () => _downloadReceipt(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: const Text(
+                  'Download Receipt',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ],
