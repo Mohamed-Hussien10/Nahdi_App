@@ -126,18 +126,23 @@ class CartPage extends StatelessWidget {
             ),
           ),
           ElevatedButton(
-            onPressed: () {
-              // Pass the cart items to CheckoutPage
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CheckoutPage(
-                      cartItems: cart.items), // Pass cart items here
-                ),
-              );
-            },
+            onPressed: totalPrice > 0
+                ? () {
+                    // Pass the cart items to CheckoutPage
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CheckoutPage(
+                          cartItems: cart.items, // Pass cart items here
+                        ),
+                      ),
+                    );
+                  }
+                : null, // Disable button when totalPrice is zero
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.teal,
+              backgroundColor: totalPrice > 0
+                  ? Colors.teal
+                  : Colors.grey, // Change color to grey when disabled
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
                 side: const BorderSide(color: Colors.grey),

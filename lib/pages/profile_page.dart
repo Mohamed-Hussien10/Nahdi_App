@@ -12,26 +12,32 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   String email = '';
   String phoneNumber = '';
   String username = '';
   String role = '';
 
-  // Text controllers for editable fields
+  List<Map<String, dynamic>> orders = [];
+
   TextEditingController usernameController = TextEditingController();
   TextEditingController phoneNumberController = TextEditingController();
 
-  bool isEditing = false; // Control if the profile is being edited
+  bool isEditing = false;
 
-  // Fetch user details from Firestore
+  @override
+  void initState() {
+    super.initState();
+    _getUserDetails();
+    _getUserOrders();
+  }
+
   void _getUserDetails() async {
     User? user = _auth.currentUser;
 
     if (user != null) {
-      var userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
+      var userDoc = await _firestore.collection('users').doc(user.uid).get();
 
       if (userDoc.exists) {
         setState(() {
@@ -40,7 +46,6 @@ class _ProfilePageState extends State<ProfilePage> {
           username = userDoc['username'] ?? 'No username';
           role = userDoc['role'] ?? 'No role';
 
-          // Initialize controllers with current values
           usernameController.text = username;
           phoneNumberController.text = phoneNumber;
         });
@@ -48,13 +53,38 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  // Update user data in Firestore
+  void _getUserOrders() async {
+    User? user = _auth.currentUser;
+
+    if (user != null) {
+      var orderSnapshot = await _firestore
+          .collection('orders')
+          .where('userId', isEqualTo: user.uid)
+          .get();
+
+      setState(() {
+        orders = orderSnapshot.docs
+            .map((doc) => {
+                  'orderId': doc.id, // Use document ID as the order ID
+                  'storeName': doc['storeName'] ?? 'Unknown Store',
+                  'recipientName': doc['recipientName'] ?? 'Unknown Recipient',
+                  'phoneNumber': doc['phoneNumber'] ?? 'No Phone',
+                  'cartItems':
+                      List<Map<String, dynamic>>.from(doc['cartItems']),
+                  'timestamp': doc['timestamp']
+                      .toDate()
+                      .toString(), // Convert Firestore timestamp
+                })
+            .toList();
+      });
+    }
+  }
+
   void _updateUserData() async {
     User? user = _auth.currentUser;
 
     if (user != null) {
-      var userDoc =
-          FirebaseFirestore.instance.collection('users').doc(user.uid);
+      var userDoc = _firestore.collection('users').doc(user.uid);
 
       await userDoc.update({
         'username': usernameController.text,
@@ -64,24 +94,17 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         username = usernameController.text;
         phoneNumber = phoneNumberController.text;
-        isEditing = false; // End editing mode
+        isEditing = false;
       });
     }
   }
 
-  // Log out function
   void _logout() async {
     await _auth.signOut();
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LoginPage()),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _getUserDetails();
   }
 
   @override
@@ -94,175 +117,203 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.teal, Colors.blueAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      appBar: AppBar(
+        title: const Text(
+          "Profile",
+          style: TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
-        child: SafeArea(
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 100),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Profile picture section
-                const CircleAvatar(
-                  radius: 70,
-                  backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.person_rounded,
-                    size: 100,
-                    color: Colors.black,
-                  ),
+        centerTitle: true,
+        backgroundColor: Colors.teal,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: _logout,
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            const SizedBox(height: 50),
+            // Profile Picture and Role
+            const CircleAvatar(
+              radius: 60,
+              backgroundColor: Colors.teal,
+              child: Icon(Icons.person, size: 80, color: Colors.white),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              username,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 25),
+
+            // Editable Profile Information
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    _buildEditableField(
+                      label: 'Username',
+                      controller: usernameController,
+                      isEditable: isEditing,
+                    ),
+                    const SizedBox(height: 10),
+                    _buildEditableField(
+                      label: 'Phone Number',
+                      controller: phoneNumberController,
+                      isEditable: isEditing,
+                    ),
+                    const SizedBox(height: 10),
+                    _buildProfileField(label: 'Email', value: email),
+                  ],
                 ),
-                const SizedBox(height: 20),
+              ),
+            ),
+            const SizedBox(height: 20),
 
-                // Username (edit or view mode)
-                isEditing
-                    ? TextField(
-                        controller: usernameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Username',
-                          labelStyle: TextStyle(color: Colors.white),
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                          ),
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                          ),
-                        ),
-                        style: const TextStyle(color: Colors.white),
-                      )
-                    : Text(
-                        username,
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                const SizedBox(height: 5),
-
-                // Role (in a smaller font)
-                Text(
-                  'Role: $role',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white70,
-                  ),
+            // Edit/Save Button
+            ElevatedButton.icon(
+              onPressed: () {
+                if (isEditing) {
+                  _updateUserData();
+                } else {
+                  setState(() {
+                    isEditing = true;
+                  });
+                }
+              },
+              icon: Icon(isEditing ? Icons.save : Icons.edit,
+                  color: Colors.white),
+              label: Text(
+                isEditing ? 'Save Changes' : 'Edit Profile',
+                style: const TextStyle(
+                  fontSize: 15,
+                  color: Colors.white,
                 ),
-                const SizedBox(height: 20),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isEditing ? Colors.green : Colors.orange,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              ),
+            ),
+            const SizedBox(height: 20),
 
-                // Profile Information Card
-                Card(
-                  elevation: 10,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Email (Non-editable)
-                        _buildProfileInfo('Email:', email),
-                        const SizedBox(height: 15),
+            // Orders Section
+            const Text(
+              "Your Orders",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            orders.isEmpty
+                ? const Text("No orders found.")
+                : RefreshIndicator(
+                    onRefresh: () async {
+                      _getUserOrders(); // Refresh the orders
+                    },
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: orders.length,
+                      itemBuilder: (context, index) {
+                        final order = orders[index];
+                        final cartItems =
+                            order['cartItems'] as List<Map<String, dynamic>>;
 
-                        // Phone Number (edit or view mode)
-                        isEditing
-                            ? TextField(
-                                controller: phoneNumberController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Phone Number',
-                                  labelStyle: TextStyle(color: Colors.black),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.teal),
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: ExpansionTile(
+                            title: Text("Order ID: ${order['orderId']}"),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Store: ${order['storeName']}"),
+                                Text("Recipient: ${order['recipientName']}"),
+                                Text("Phone: ${order['phoneNumber']}"),
+                                Text("Date: ${order['timestamp']}"),
+                              ],
+                            ),
+                            children: cartItems.map((item) {
+                              return ListTile(
+                                leading: Container(
+                                  width:
+                                      60, // Ensure the container is large enough for the border
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.teal,
+                                      width: 2.0,
+                                    ),
                                   ),
-                                  enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.teal),
+                                  child: CircleAvatar(
+                                    radius: 30,
+                                    child: Image.network(
+                                      item['imagePath'],
+                                      width: 35,
+                                      height: 35,
+                                      fit: BoxFit.fill,
+                                    ),
                                   ),
                                 ),
-                                style: const TextStyle(color: Colors.black),
-                              )
-                            : _buildProfileInfo('Phone Number:', phoneNumber),
-                      ],
+                                title: Text(item['title']),
+                                subtitle: Text(
+                                    "Price: \$${item['price']} x ${item['quantity']}"),
+                              );
+                            }).toList(),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                ),
-                const SizedBox(height: 40),
-
-                // Edit/Save Button
-                ElevatedButton(
-                  onPressed: () {
-                    if (isEditing) {
-                      _updateUserData();
-                    } else {
-                      setState(() {
-                        isEditing = true; // Start editing mode
-                      });
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isEditing ? Colors.green : Colors.orange,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 15, horizontal: 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    elevation: 5,
-                  ),
-                  child: Text(
-                    isEditing ? 'Save Changes' : 'Edit Profile',
-                    style: const TextStyle(fontSize: 18, color: Colors.white),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Log out button
-                ElevatedButton(
-                  onPressed: _logout,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 15, horizontal: 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    elevation: 5,
-                  ),
-                  child: const Text(
-                    'Log Out',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  // Helper function to build profile information rows
-  Widget _buildProfileInfo(String label, String value) {
+  Widget _buildEditableField({
+    required String label,
+    required TextEditingController controller,
+    required bool isEditable,
+  }) {
+    return TextField(
+      controller: controller,
+      enabled: isEditable,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        suffixIcon: isEditable ? const Icon(Icons.edit) : null,
+      ),
+    );
+  }
+
+  Widget _buildProfileField({required String label, required String value}) {
     return Row(
       children: [
         Text(
-          '$label ',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          "$label: ",
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(fontSize: 18),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
+          child: Text(value),
         ),
       ],
     );

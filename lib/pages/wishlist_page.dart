@@ -49,88 +49,90 @@ class _WishlistScreenState extends State<WishlistScreen> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.teal, // Custom background color for app bar
-        elevation: 4.0, // Add slight elevation for better contrast
+        backgroundColor: Colors.teal,
+        elevation: 4.0,
         centerTitle: true, // Centers the title in the app bar
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(
-                20), // Rounded corners at the bottom of the app bar
+            bottom: Radius.circular(20),
           ),
         ),
         automaticallyImplyLeading: false, // Removes the back icon
       ),
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator()) // Show loading indicator
+          ? const Center(child: CircularProgressIndicator())
           : wishlistItems.isEmpty
               ? const Center(child: Text('No items in your wishlist'))
               : Padding(
                   padding: const EdgeInsets.only(top: 15),
-                  child: ListView.builder(
-                    itemCount: wishlistItems.length,
-                    itemBuilder: (context, index) {
-                      final item = wishlistItems[index];
-                      return InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProductDetailsPage(
-                                title: item['name'],
-                                imagePath: item['image'],
-                                price: item['price'].toString(),
-                                productId: item['id'],
+                  child: RefreshIndicator(
+                    onRefresh: _loadWishlistItems, // Refresh the wishlist
+                    child: ListView.builder(
+                      itemCount: wishlistItems.length,
+                      itemBuilder: (context, index) {
+                        final item = wishlistItems[index];
+                        return InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProductDetailsPage(
+                                  title: item['name'],
+                                  imagePath: item['image'],
+                                  price: item['price'].toString(),
+                                  productId: item['id'],
+                                  productDescription: item['description'],
+                                ),
+                              ),
+                            );
+                          },
+                          child: Card(
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 8),
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.all(12),
+                              leading: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  item['image'],
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              title: Text(
+                                item['name'],
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              subtitle: Text(
+                                'Price: \$${item['price']}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              trailing: IconButton(
+                                icon: const Icon(
+                                  Icons.cancel,
+                                  color: Colors.redAccent,
+                                  size: 28,
+                                ),
+                                onPressed: () {
+                                  _removeFromWishlist(item['id']);
+                                },
                               ),
                             ),
-                          );
-                        },
-                        child: Card(
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 15, vertical: 8),
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.all(12),
-                            leading: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
-                                item['image'],
-                                width: 60,
-                                height: 60,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            title: Text(
-                              item['name'],
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            subtitle: Text(
-                              'Price: \$${item['price']}',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(
-                                Icons.cancel,
-                                color: Colors.redAccent,
-                                size: 28,
-                              ),
-                              onPressed: () {
-                                _removeFromWishlist(item['id']);
-                              },
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                 ),
     );
@@ -139,7 +141,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
   // Method to remove item from wishlist
   Future<void> _removeFromWishlist(String id) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(id); // Remove the item by its ID
-    _loadWishlistItems(); // Reload the wishlist items
+    await prefs.remove(id);
+    _loadWishlistItems();
   }
 }

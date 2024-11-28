@@ -250,6 +250,7 @@ class _HomeContentState extends State<HomeContent> {
                       product['image_url'],
                       product['price'].toString(),
                       product['productId'],
+                      product['description'],
                     );
                   },
                 );

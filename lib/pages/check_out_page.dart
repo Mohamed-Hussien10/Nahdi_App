@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
 import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
-import 'package:nahdy/pages/order_details_page.dart';
+import 'package:nahdy/pages/order_details_page.dart'; // Your Order Details Page
 
 class CheckoutPage extends StatefulWidget {
   final List<Map<String, dynamic>> cartItems;
@@ -18,12 +19,30 @@ class _CheckoutPageState extends State<CheckoutPage> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
 
+  @override
+  void dispose() {
+    _recipientNameController.dispose();
+    _addressController.dispose();
+    _phoneNumberController.dispose();
+    super.dispose();
+  }
+
   Future<void> _saveOrder() async {
     // Get Firestore instance
     final firestore = FirebaseFirestore.instance;
+    final user = FirebaseAuth.instance.currentUser; // Get the current user
+
+    if (user == null) {
+      // Handle the case where the user is not logged in
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please log in to place an order')),
+      );
+      return;
+    }
 
     // Create order data
     final orderData = {
+      'userId': user.uid, // Add user ID to the order
       'recipientName': _recipientNameController.text,
       'address': _addressController.text,
       'phoneNumber': _phoneNumberController.text,
@@ -36,9 +55,24 @@ class _CheckoutPageState extends State<CheckoutPage> {
     try {
       // Save the order to the 'orders' collection
       await firestore.collection('orders').add(orderData);
-      // Optionally, show a success message
+
+      // Show a success message
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Order saved successfully!')),
+        const SnackBar(content: Text('Order placed successfully!')),
+      );
+
+      // Navigate to Order Details Page after saving
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ReceiptPage(
+            recipientName: _recipientNameController.text,
+            address: _addressController.text,
+            phoneNumber: _phoneNumberController.text,
+            cartItems: widget.cartItems,
+            storeName: 'Al-nahdi',
+          ),
+        ),
       );
     } catch (e) {
       // Handle errors
@@ -131,20 +165,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           if (_formKey.currentState!.validate()) {
                             // Save order to Firestore
                             await _saveOrder();
-
-                            // Navigate to Order Details Page after saving
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ReceiptPage(
-                                  recipientName: _recipientNameController.text,
-                                  address: _addressController.text,
-                                  phoneNumber: _phoneNumberController.text,
-                                  cartItems: widget.cartItems,
-                                  storeName: 'Al-nahdi',
-                                ),
-                              ),
-                            );
                           }
                         },
                         style: ElevatedButton.styleFrom(

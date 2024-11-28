@@ -45,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
       if (userDoc.exists && userDoc['role'] == 'admin') {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainAdminPage()),
+          MaterialPageRoute(builder: (context) => MainAdminPage()),
         );
       } else {
         Navigator.pushReplacement(
@@ -77,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
       if (userDoc.exists && userDoc['role'] == 'admin') {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainAdminPage()),
+          MaterialPageRoute(builder: (context) => MainAdminPage()),
         );
       } else {
         Navigator.pushReplacement(

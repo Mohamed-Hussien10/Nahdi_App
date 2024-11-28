@@ -4,7 +4,7 @@ import 'package:nahdy/pages/product_details_page.dart';
 import 'package:provider/provider.dart';
 
 Widget productCard(BuildContext context, String title, String imagePath,
-    String price, String productId) {
+    String price, String productId, String productDescription) {
   return InkWell(
     onTap: () {
       Navigator.push(
@@ -15,6 +15,7 @@ Widget productCard(BuildContext context, String title, String imagePath,
             imagePath: imagePath,
             price: price,
             productId: productId,
+            productDescription: productDescription,
           ),
         ),
       );
