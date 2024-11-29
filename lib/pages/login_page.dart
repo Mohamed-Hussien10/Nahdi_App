@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nahdy/admin/main_admin_page.dart';
 import 'package:nahdy/components/text_form_field.dart';
@@ -15,16 +14,14 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
 }
 
-final _formKey = GlobalKey<FormState>();
-
 class _LoginPageState extends State<LoginPage> {
   final _auth = FirebaseAuth.instance;
+  final _formKey = GlobalKey<FormState>();
 
   String email = '';
   String password = '';
   bool isLoading = false;
-  bool isCheckingUser =
-      true; // State to track if we're checking for a logged-in user
+  bool isCheckingUser = true; // State to track if we're checking user status
 
   @override
   void initState() {
@@ -53,16 +50,21 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
       }
+    } else {
+      setState(() {
+        isCheckingUser = false; // Finished checking, show login form
+      });
     }
-
-    setState(() {
-      isCheckingUser = false; // Finished checking
-    });
   }
 
   // Sign in function
-  Future<bool> signIn() async {
-    bool isValid = false;
+  Future<void> signIn() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
@@ -85,13 +87,15 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
       }
-      isValid = true;
     } catch (e) {
-      if (kDebugMode) {
-        print('Error during login: $e');
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid email or password')),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
-    return isValid;
   }
 
   @override
@@ -99,7 +103,9 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: const Color(0xffE0F2F1),
       body: isCheckingUser
-          ? const Center(child: CircularProgressIndicator()) // Loading screen
+          ? const Center(
+              child:
+                  CircularProgressIndicator()) // Show loader while checking user
           : SafeArea(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.only(top: 100),
@@ -145,10 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: Column(
                             children: [
                               TextFField(
-                                const Icon(
-                                  Icons.email,
-                                  color: Colors.black,
-                                ),
+                                const Icon(Icons.email, color: Colors.black),
                                 'Email',
                                 'Enter your email',
                                 TextInputType.emailAddress,
@@ -164,17 +167,11 @@ class _LoginPageState extends State<LoginPage> {
                                   }
                                   return null;
                                 },
-                                (context) {
-                                  email = context!;
-                                  return null;
-                                },
+                                (context) => email = context!,
                               ),
                               const SizedBox(height: 25),
                               TextFField(
-                                const Icon(
-                                  Icons.lock,
-                                  color: Colors.black,
-                                ),
+                                const Icon(Icons.lock, color: Colors.black),
                                 'Password',
                                 'Enter your password',
                                 TextInputType.visiblePassword,
@@ -188,41 +185,11 @@ class _LoginPageState extends State<LoginPage> {
                                   }
                                   return null;
                                 },
-                                (context) {
-                                  password = context!;
-                                  return null;
-                                },
+                                (context) => password = context!,
                               ),
                               const SizedBox(height: 35),
                               ElevatedButton(
-                                onPressed: isLoading
-                                    ? null
-                                    : () async {
-                                        if (_formKey.currentState!.validate()) {
-                                          setState(() {
-                                            isLoading = true;
-                                          });
-                                          _formKey.currentState!.save();
-                                          if (await signIn()) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              const SnackBar(
-                                                  content:
-                                                      Text("Login successful")),
-                                            );
-                                          } else {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              const SnackBar(
-                                                  content: Text(
-                                                      "Invalid email or password")),
-                                            );
-                                          }
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                        }
-                                      },
+                                onPressed: isLoading ? null : signIn,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.teal,
                                   shape: RoundedRectangleBorder(
@@ -231,16 +198,12 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 ),
                                 child: isLoading
-                                    ? const Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 12),
-                                        child: SizedBox(
-                                          height: 22,
-                                          width: 22,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.teal,
-                                            strokeWidth: 5,
-                                          ),
+                                    ? const SizedBox(
+                                        height: 22,
+                                        width: 22,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 3,
                                         ),
                                       )
                                     : const Padding(
@@ -270,9 +233,7 @@ class _LoginPageState extends State<LoginPage> {
                                 },
                                 child: const Text(
                                   'Forgot Password?',
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                  ),
+                                  style: TextStyle(color: Colors.red),
                                 ),
                               ),
                               const SizedBox(height: 10),
@@ -281,9 +242,7 @@ class _LoginPageState extends State<LoginPage> {
                                 children: [
                                   const Text(
                                     'Don\'t have an account?',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                    ),
+                                    style: TextStyle(color: Colors.black),
                                   ),
                                   InkWell(
                                     onTap: () {

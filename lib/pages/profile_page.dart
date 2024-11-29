@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:nahdy/pages/login_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -57,27 +58,32 @@ class _ProfilePageState extends State<ProfilePage> {
     User? user = _auth.currentUser;
 
     if (user != null) {
-      var orderSnapshot = await _firestore
-          .collection('orders')
-          .where('userId', isEqualTo: user.uid)
-          .get();
+      try {
+        var orderSnapshot = await _firestore
+            .collection('orders')
+            .where('userId', isEqualTo: user.uid)
+            .get();
 
-      setState(() {
-        orders = orderSnapshot.docs
-            .map((doc) => {
-                  'orderId': doc.id, // Use document ID as the order ID
-                  'address': doc['address'] ?? 'Unknown Store',
-                  'recipientName': doc['recipientName'] ?? 'Unknown Recipient',
-                  'phoneNumber': doc['phoneNumber'] ?? 'No Phone',
-                  'cartItems':
-                      List<Map<String, dynamic>>.from(doc['cartItems']),
-                  'timestamp': doc['timestamp']
-                      .toDate()
-                      .toString(), // Convert Firestore timestamp
-                  'status': doc['status'] ?? 'Pending', // Order status
-                })
-            .toList();
-      });
+        setState(() {
+          orders = orderSnapshot.docs.map((doc) {
+            final timestamp = doc['timestamp'] as Timestamp;
+            final formattedDate = DateFormat('MMMM d, yyyy').add_jms().format(
+                  timestamp.toDate(),
+                ); // Format to "November 29, 2024 at 3:42:56 PM UTC+2"
+            return {
+              'orderId': doc.id,
+              'address': doc['address'] ?? 'Unknown Store',
+              'recipientName': doc['recipientName'] ?? 'Unknown Recipient',
+              'phoneNumber': doc['phoneNumber'] ?? 'No Phone',
+              'cartItems': List<Map<String, dynamic>>.from(doc['cartItems']),
+              'timestamp': formattedDate,
+              'status': doc['status'] ?? 'Pending',
+            };
+          }).toList();
+        });
+      } catch (e) {
+        print("Error fetching orders: $e");
+      }
     }
   }
 
@@ -249,9 +255,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Text("Date: ${order['timestamp']}"),
                                 Text("Status: ${order['status']}",
                                     style: TextStyle(
-                                      color: order['status'] == 'Confirmed'
+                                      color: order['status'] == 'confirmed'
                                           ? Colors.green
-                                          : (order['status'] == 'Canceled'
+                                          : (order['status'] == 'canceled'
                                               ? Colors.red
                                               : Colors.orange),
                                       fontWeight: FontWeight.bold,
