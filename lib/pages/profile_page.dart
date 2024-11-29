@@ -66,7 +66,7 @@ class _ProfilePageState extends State<ProfilePage> {
         orders = orderSnapshot.docs
             .map((doc) => {
                   'orderId': doc.id, // Use document ID as the order ID
-                  'storeName': doc['storeName'] ?? 'Unknown Store',
+                  'address': doc['address'] ?? 'Unknown Store',
                   'recipientName': doc['recipientName'] ?? 'Unknown Recipient',
                   'phoneNumber': doc['phoneNumber'] ?? 'No Phone',
                   'cartItems':
@@ -74,6 +74,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   'timestamp': doc['timestamp']
                       .toDate()
                       .toString(), // Convert Firestore timestamp
+                  'status': doc['status'] ?? 'Pending', // Order status
                 })
             .toList();
       });
@@ -140,7 +141,6 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           children: [
             const SizedBox(height: 50),
-            // Profile Picture and Role
             const CircleAvatar(
               radius: 60,
               backgroundColor: Colors.teal,
@@ -240,36 +240,44 @@ class _ProfilePageState extends State<ProfilePage> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: ExpansionTile(
-                            title: Text("Order ID: ${order['orderId']}"),
-                            subtitle: Column(
+                            title: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("Store: ${order['storeName']}"),
+                                Text("Address: ${order['address']}"),
                                 Text("Recipient: ${order['recipientName']}"),
                                 Text("Phone: ${order['phoneNumber']}"),
                                 Text("Date: ${order['timestamp']}"),
+                                Text("Status: ${order['status']}",
+                                    style: TextStyle(
+                                      color: order['status'] == 'Confirmed'
+                                          ? Colors.green
+                                          : (order['status'] == 'Canceled'
+                                              ? Colors.red
+                                              : Colors.orange),
+                                      fontWeight: FontWeight.bold,
+                                    )),
                               ],
                             ),
                             children: cartItems.map((item) {
                               return ListTile(
                                 leading: Container(
-                                  width:
-                                      60, // Ensure the container is large enough for the border
+                                  width: 60,
                                   height: 60,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
                                       color: Colors.teal,
-                                      width: 2.0,
+                                      width: 1.5,
                                     ),
                                   ),
                                   child: CircleAvatar(
+                                    backgroundColor: Colors.white,
                                     radius: 30,
                                     child: Image.network(
                                       item['imagePath'],
                                       width: 35,
                                       height: 35,
-                                      fit: BoxFit.fill,
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),

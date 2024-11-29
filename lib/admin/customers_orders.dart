@@ -88,6 +88,21 @@ class OrderCard extends StatelessWidget {
     final phoneNumber = order['phoneNumber'] as String;
     final recipientName = order['recipientName'] as String;
     final storeName = order['storeName'] as String;
+    final status = order['status'] as String; // Extract status
+
+    // Determine color based on status
+    Color getStatusColor(String status) {
+      switch (status) {
+        case 'confirmed':
+          return Colors.green;
+        case 'pending':
+          return Colors.orange;
+        case 'canceled':
+          return Colors.red;
+        default:
+          return Colors.grey;
+      }
+    }
 
     return Card(
       margin: const EdgeInsets.all(10),
@@ -96,9 +111,24 @@ class OrderCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Order status at the top
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Status: $status',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: getStatusColor(status), // Dynamic color
+                  ),
+                ),
+                Text(
+                  'Store: $storeName',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
             const SizedBox(height: 5),
-            Text('Store: $storeName',
-                style: const TextStyle(fontWeight: FontWeight.bold)),
             Text('Recipient: $recipientName'),
             Text('Phone: $phoneNumber'),
             const SizedBox(height: 10),
@@ -113,9 +143,11 @@ class OrderCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 ElevatedButton(
-                  onPressed: () {
-                    _confirmOrder(context, order.id, cartItems);
-                  },
+                  onPressed: status == 'pending'
+                      ? () {
+                          _confirmOrder(context, order.id, cartItems);
+                        }
+                      : null, // Disable button if not pending
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     shape: RoundedRectangleBorder(
@@ -131,9 +163,11 @@ class OrderCard extends StatelessWidget {
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    _cancelOrder(context, order.id, cartItems);
-                  },
+                  onPressed: status == 'pending'
+                      ? () {
+                          _cancelOrder(context, order.id, cartItems);
+                        }
+                      : null, // Disable button if not pending
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     shape: RoundedRectangleBorder(
@@ -181,8 +215,6 @@ class OrderCard extends StatelessWidget {
         });
       }
 
-      // Remove the order from the customer's orders collection
-      await _removeOrderFromCustomer(orderId);
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Order confirmed!')));
     } catch (error) {
@@ -192,21 +224,17 @@ class OrderCard extends StatelessWidget {
     }
   }
 
-  Future<void> _removeOrderFromCustomer(String orderId) async {
-    await FirebaseFirestore.instance
-        .collection('orders')
-        .doc(orderId)
-        .delete()
-        .catchError((error) {
-      print("Failed to remove order from customer: $error");
-    });
-  }
-
   void _cancelOrder(
       BuildContext context, String orderId, List cartItems) async {
-    // Remove the order from the customer's orders collection
     try {
-      await _removeOrderFromCustomer(orderId);
+      // Update order status to canceled
+      await FirebaseFirestore.instance
+          .collection('orders')
+          .doc(orderId)
+          .update({
+        'status': 'canceled',
+      });
+
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Order canceled!')));
     } catch (error) {

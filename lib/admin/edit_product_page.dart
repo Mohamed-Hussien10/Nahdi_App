@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'product.dart'; // Replace with the path to your Product model file
 
 class EditProductsPage extends StatefulWidget {
+  const EditProductsPage({super.key});
+
   @override
   _EditProductsPageState createState() => _EditProductsPageState();
 }
@@ -179,7 +181,7 @@ class _EditProductsPageState extends State<EditProductsPage> {
 class EditProductScreen extends StatefulWidget {
   final Product product;
 
-  EditProductScreen({required this.product});
+  const EditProductScreen({super.key, required this.product});
 
   @override
   _EditProductScreenState createState() => _EditProductScreenState();

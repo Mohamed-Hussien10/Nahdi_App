@@ -48,6 +48,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       'phoneNumber': _phoneNumberController.text,
       'cartItems': widget.cartItems,
       'storeName': 'Al-nahdi',
+      'status': 'pending', // Add initial order status
       'timestamp':
           FieldValue.serverTimestamp(), // Optional: Timestamp for ordering
     };
