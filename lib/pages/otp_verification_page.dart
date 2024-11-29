@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:nahdy/pages/login_page.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   OtpVerificationPage(this.email, {super.key});
@@ -36,60 +37,6 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     }
   }
 
-  void showResetPasswordDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Reset Password'),
-          content: TextField(
-            controller: _newPasswordController,
-            obscureText: true,
-            decoration: const InputDecoration(
-              labelText: 'Enter New Password',
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                resetPassword();
-                Navigator.of(context).pop();
-              },
-              child: const Text('Reset Password'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> resetPassword() async {
-    try {
-      String newPassword = _newPasswordController.text;
-      User? user = _auth.currentUser;
-
-      if (user != null) {
-        await user.updatePassword(newPassword);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Password successfully updated")),
-        );
-        if (kDebugMode) {
-          print('Password successfully updated');
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error updating password: $e');
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,7 +52,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               ),
             ),
             Text(
-              'We sent a reset email to ${widget.email}',
+              'We will send a reset email to ${widget.email}',
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
@@ -115,8 +62,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             const SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
-                sendResetPasswordEmail(); // Send reset email
-                showResetPasswordDialog(); // Show the dialog to enter new password
+                sendResetPasswordEmail();
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.teal,
