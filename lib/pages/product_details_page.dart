@@ -156,6 +156,7 @@ class ProductDetailsPage extends StatelessWidget {
                   productName: title,
                   productImage: imagePath,
                   productPrice: price,
+                  productDescription: productDescription,
                 ),
               ],
             ),
