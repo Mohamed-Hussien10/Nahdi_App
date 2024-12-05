@@ -251,104 +251,110 @@ class _ReceiptPageState extends State<ReceiptPage> {
       },
     );
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Receipt'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Store Name
-            Center(
-                child: Text(
-              widget.storeName,
-              style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.teal),
-            )),
-            // Date
-            Center(
-                child: Text(
-              DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()),
-              style: const TextStyle(fontSize: 16, color: Colors.grey),
-            )),
-            const Divider(thickness: 1, color: Colors.grey),
-            // Recipient Details
-            Text('Recipient: ${widget.recipientName}',
-                style: const TextStyle(fontSize: 16)),
-            Text('Address: ${widget.address}',
-                style: const TextStyle(fontSize: 16)),
-            Text('Phone: ${widget.phoneNumber}',
-                style: const TextStyle(fontSize: 16)),
-            const Divider(thickness: 1, color: Colors.grey),
-            // Items List
-            const Text('Items:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                itemCount: widget.cartItems.length,
-                itemBuilder: (context, index) {
-                  final item = widget.cartItems[index];
-                  double itemTotal = (item['price'] as num).toDouble() *
-                      (item['quantity'] as num).toInt();
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: ListTile(
-                      title: Text(item['title']),
-                      subtitle:
-                          Text('x${item['quantity']} - \$${item['price']}'),
-                      trailing: Text('\$${itemTotal.toStringAsFixed(2)}'),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const Divider(thickness: 1, color: Colors.grey),
-            // Total Price
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Total',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text(
-                    '\$${totalPrice.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Download Button
-            Center(
-              child: ElevatedButton(
-                onPressed: () => _downloadReceipt(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: const Text(
-                  'Download Receipt',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.white,
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Receipt'),
+          automaticallyImplyLeading: false,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Store Name
+              Center(
+                  child: Text(
+                widget.storeName,
+                style: const TextStyle(
+                    fontSize: 26,
                     fontWeight: FontWeight.bold,
+                    color: Colors.teal),
+              )),
+              // Date
+              Center(
+                  child: Text(
+                DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()),
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
+              )),
+              const Divider(thickness: 1, color: Colors.grey),
+              // Recipient Details
+              Text('Recipient: ${widget.recipientName}',
+                  style: const TextStyle(fontSize: 16)),
+              Text('Address: ${widget.address}',
+                  style: const TextStyle(fontSize: 16)),
+              Text('Phone: ${widget.phoneNumber}',
+                  style: const TextStyle(fontSize: 16)),
+              const Divider(thickness: 1, color: Colors.grey),
+              // Items List
+              const Text('Items:',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: widget.cartItems.length,
+                  itemBuilder: (context, index) {
+                    final item = widget.cartItems[index];
+                    double itemTotal = (item['price'] as num).toDouble() *
+                        (item['quantity'] as num).toInt();
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: ListTile(
+                        title: Text(item['title']),
+                        subtitle:
+                            Text('x${item['quantity']} - \$${item['price']}'),
+                        trailing: Text('\$${itemTotal.toStringAsFixed(2)}'),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const Divider(thickness: 1, color: Colors.grey),
+              // Total Price
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Total',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      '\$${totalPrice.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Download Button
+              Center(
+                child: ElevatedButton(
+                  onPressed: () => _downloadReceipt(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: const Text(
+                    'Download Receipt',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
