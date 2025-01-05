@@ -76,7 +76,6 @@ class _WishlistIconState extends State<WishlistIcon> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: 30),
       width: 55,
       height: 55,
       decoration: const BoxDecoration(

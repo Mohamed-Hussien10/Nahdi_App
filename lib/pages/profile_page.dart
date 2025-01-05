@@ -2,7 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:nahdy/components/app_localizations.dart';
 import 'package:nahdy/pages/login_page.dart';
+import 'package:nahdy/pages/setting_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -123,11 +125,13 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    var t = AppLocalizations.of(context).translate;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Profile",
-          style: TextStyle(
+        title: Text(
+          t("profile"), // use translation key
+          style: const TextStyle(
             fontSize: 25,
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -136,6 +140,15 @@ class _ProfilePageState extends State<ProfilePage> {
         centerTitle: true,
         backgroundColor: Colors.teal,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: _logout,
@@ -173,18 +186,19 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   children: [
                     _buildEditableField(
-                      label: 'Username',
+                      label: t("username"), // use translation key
                       controller: usernameController,
                       isEditable: isEditing,
                     ),
                     const SizedBox(height: 10),
                     _buildEditableField(
-                      label: 'Phone Number',
+                      label: t("phone_number"), // use translation key
                       controller: phoneNumberController,
                       isEditable: isEditing,
                     ),
                     const SizedBox(height: 10),
-                    _buildProfileField(label: 'Email', value: email),
+                    _buildProfileField(
+                        label: t("email"), value: email), // use translation key
                   ],
                 ),
               ),
@@ -205,7 +219,9 @@ class _ProfilePageState extends State<ProfilePage> {
               icon: Icon(isEditing ? Icons.save : Icons.edit,
                   color: Colors.white),
               label: Text(
-                isEditing ? 'Save Changes' : 'Edit Profile',
+                isEditing
+                    ? t("save_changes")
+                    : t("edit_profile"), // use translation key
                 style: const TextStyle(
                   fontSize: 15,
                   color: Colors.white,
@@ -220,13 +236,13 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 20),
 
             // Orders Section
-            const Text(
-              "Your Orders",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            Text(
+              t("your_orders"), // use translation key
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             orders.isEmpty
-                ? const Text("No orders found.")
+                ? Text(t("no_orders_found")) // use translation key
                 : RefreshIndicator(
                     onRefresh: () async {
                       _getUserOrders(); // Refresh the orders
@@ -249,19 +265,25 @@ class _ProfilePageState extends State<ProfilePage> {
                             title: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("Address: ${order['address']}"),
-                                Text("Recipient: ${order['recipientName']}"),
-                                Text("Phone: ${order['phoneNumber']}"),
-                                Text("Date: ${order['timestamp']}"),
-                                Text("Status: ${order['status']}",
-                                    style: TextStyle(
-                                      color: order['status'] == 'confirmed'
-                                          ? Colors.green
-                                          : (order['status'] == 'canceled'
-                                              ? Colors.red
-                                              : Colors.orange),
-                                      fontWeight: FontWeight.bold,
-                                    )),
+                                Text(
+                                    "${t('address')}: ${order['address']}"), // use translation key
+                                Text(
+                                    "${t('recipient')}: ${order['recipientName']}"), // use translation key
+                                Text(
+                                    "${t('phone')}: ${order['phoneNumber']}"), // use translation key
+                                Text(
+                                    "${t('date')}: ${order['timestamp']}"), // use translation key
+                                Text(
+                                  "${t('status')}: ${order['status']}",
+                                  style: TextStyle(
+                                    color: order['status'] == 'confirmed'
+                                        ? Colors.green
+                                        : (order['status'] == 'canceled'
+                                            ? Colors.red
+                                            : Colors.orange),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ],
                             ),
                             children: cartItems.map((item) {
@@ -289,7 +311,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 title: Text(item['title']),
                                 subtitle: Text(
-                                    "Price: \$${item['price']} x ${item['quantity']}"),
+                                    "${t('price')}: \$${item['price']} x ${item['quantity']}"), // use translation key
                               );
                             }).toList(),
                           ),
@@ -302,34 +324,34 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
+}
 
-  Widget _buildEditableField({
-    required String label,
-    required TextEditingController controller,
-    required bool isEditable,
-  }) {
-    return TextField(
-      controller: controller,
-      enabled: isEditable,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-        suffixIcon: isEditable ? const Icon(Icons.edit) : null,
+Widget _buildEditableField({
+  required String label,
+  required TextEditingController controller,
+  required bool isEditable,
+}) {
+  return TextField(
+    controller: controller,
+    enabled: isEditable,
+    decoration: InputDecoration(
+      labelText: label,
+      border: const OutlineInputBorder(),
+      suffixIcon: isEditable ? const Icon(Icons.edit) : null,
+    ),
+  );
+}
+
+Widget _buildProfileField({required String label, required String value}) {
+  return Row(
+    children: [
+      Text(
+        "$label: ",
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
-    );
-  }
-
-  Widget _buildProfileField({required String label, required String value}) {
-    return Row(
-      children: [
-        Text(
-          "$label: ",
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Expanded(
-          child: Text(value),
-        ),
-      ],
-    );
-  }
+      Expanded(
+        child: Text(value),
+      ),
+    ],
+  );
 }

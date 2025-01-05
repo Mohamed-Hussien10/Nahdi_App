@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:nahdy/admin/product_card.dart';
+import 'package:nahdy/components/app_localizations.dart';
 import 'package:nahdy/pages/cart_page.dart';
 import 'package:nahdy/pages/wishlist_page.dart';
 import 'package:nahdy/pages/profile_page.dart'; // Import Profile Page
@@ -31,16 +32,17 @@ class _HomePageState extends State<HomePage> {
     return (await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Exit App'),
-            content: const Text('Do you want to exit the app?'),
+            title: Text(AppLocalizations.of(context).translate('exitAppTitle')),
+            content:
+                Text(AppLocalizations.of(context).translate('exitAppMessage')),
             actions: <Widget>[
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false), // Don't exit
-                child: const Text('No'),
+                child: Text(AppLocalizations.of(context).translate('no')),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true), // Exit
-                child: const Text('Yes'),
+                child: Text(AppLocalizations.of(context).translate('yes')),
               ),
             ],
           ),
@@ -50,6 +52,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    var t = AppLocalizations.of(context).translate;
+
     // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: _onWillPop, // Trigger on back press
@@ -57,9 +61,9 @@ class _HomePageState extends State<HomePage> {
         // AppBar is shown only on the Home screen
         appBar: _selectedIndex == 0
             ? AppBar(
-                title: const Text(
-                  'Medical Supplies Store',
-                  style: TextStyle(
+                title: Text(
+                  t('appTitle'),
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -82,22 +86,22 @@ class _HomePageState extends State<HomePage> {
         bottomNavigationBar: BottomNavigationBar(
           type:
               BottomNavigationBarType.fixed, // Fixes the bar and centers items
-          items: const <BottomNavigationBarItem>[
+          items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
+              icon: const Icon(Icons.home),
+              label: t('home'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart),
-              label: 'Cart',
+              icon: const Icon(Icons.shopping_cart),
+              label: t('cart'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.favorite),
-              label: 'Wishlist',
+              icon: const Icon(Icons.favorite),
+              label: t('wishlist'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
+              icon: const Icon(Icons.person),
+              label: t('profile'),
             ),
           ],
           currentIndex: _selectedIndex,
@@ -126,6 +130,8 @@ class _HomeContentState extends State<HomeContent> {
 
   @override
   Widget build(BuildContext context) {
+    var t = AppLocalizations.of(context).translate;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -143,22 +149,22 @@ class _HomeContentState extends State<HomeContent> {
               borderRadius: BorderRadius.circular(12),
             ),
             padding: const EdgeInsets.all(16.0),
-            child: const Column(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Welcome to the Medical Supplies Store!',
-                  style: TextStyle(
+                  t('welcomeMessage'),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
-                  'Your trusted place for medical products.',
-                  style: TextStyle(
+                  t('welcomeSubtitle'),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                   ),
@@ -177,7 +183,7 @@ class _HomeContentState extends State<HomeContent> {
               });
             },
             decoration: InputDecoration(
-              labelText: 'Search for products',
+              labelText: t('searchPlaceholder'),
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -187,29 +193,29 @@ class _HomeContentState extends State<HomeContent> {
           const SizedBox(height: 20),
 
           // Categories Section
-          const Text(
-            'Categories',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Text(
+            t('categories'),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           SizedBox(
             height: 100,
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                categoryCard('All', Icons.all_inclusive),
-                categoryCard('Masks', Icons.masks),
-                categoryCard('Gloves', Icons.handshake),
-                categoryCard('Syringes', Icons.local_hospital),
-                categoryCard('Thermometers', Icons.thermostat),
+                categoryCard(t('all'), Icons.all_inclusive),
+                categoryCard(t('masks'), Icons.masks),
+                categoryCard(t('gloves'), Icons.handshake),
+                categoryCard(t('syringes'), Icons.local_hospital),
+                categoryCard(t('thermometers'), Icons.thermostat),
               ],
             ),
           ),
           const SizedBox(height: 20),
 
           // Featured Products Section
-          const Text(
-            'Featured Products',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Text(
+            t('featuredProducts'),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
 

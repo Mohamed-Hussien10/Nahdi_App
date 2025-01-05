@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
 import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
+import 'package:nahdy/components/app_localizations.dart';
 import 'package:nahdy/pages/order_details_page.dart'; // Your Order Details Page
 
 class CheckoutPage extends StatefulWidget {
@@ -59,7 +60,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
       // Show a success message
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Order placed successfully!')),
+        SnackBar(
+            content: Text(AppLocalizations.of(context)
+                .translate('order_placed_successfully'))),
       );
 
       // Navigate to Order Details Page after saving
@@ -85,8 +88,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   @override
   Widget build(BuildContext context) {
+    var t = AppLocalizations.of(context).translate;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Checkout')),
+      appBar: AppBar(
+        title: Text(t('checkout')),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -98,19 +105,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Delivery Information',
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    Text(
+                      t('delivery_information'),
+                      style: const TextStyle(
+                          fontSize: 22, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
-                    const Text('Recipient Name',
-                        style: TextStyle(fontSize: 16)),
+                    Text(t('recipient_name'),
+                        style: const TextStyle(fontSize: 16)),
                     TextFormField(
                       controller: _recipientNameController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Enter recipient name',
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        hintText: t('enter_recipient_name'),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -120,12 +127,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       },
                     ),
                     const SizedBox(height: 10),
-                    const Text('Address', style: TextStyle(fontSize: 16)),
+                    Text(t('address'), style: const TextStyle(fontSize: 16)),
                     TextFormField(
                       controller: _addressController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Enter delivery address',
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        hintText: t('enter_address'),
                       ),
                       maxLines: 2,
                       validator: (value) {
@@ -136,12 +143,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       },
                     ),
                     const SizedBox(height: 10),
-                    const Text('Phone Number', style: TextStyle(fontSize: 16)),
+                    Text(t('phone_number'),
+                        style: const TextStyle(fontSize: 16)),
                     TextFormField(
                       controller: _phoneNumberController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Enter phone number',
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        hintText: t('enter_phone_number'),
                       ),
                       keyboardType: TextInputType.phone,
                       validator: (value) {
@@ -155,9 +163,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       },
                     ),
                     const SizedBox(height: 20),
-                    const Text(
-                      'Payment Method: Pay on Delivery',
-                      style: TextStyle(fontSize: 18, color: Colors.teal),
+                    Text(
+                      t('payment_method'),
+                      style: const TextStyle(fontSize: 18, color: Colors.teal),
                     ),
                     const SizedBox(height: 30),
                     Center(
@@ -174,12 +182,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
                               horizontal: 50, vertical: 12),
                           child: Text(
-                            'Confirm Order',
-                            style: TextStyle(
+                            t('confirm_order'),
+                            style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 22,

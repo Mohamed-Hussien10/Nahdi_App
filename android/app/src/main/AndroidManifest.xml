@@ -9,9 +9,9 @@
                      tools:ignore="ScopedStorage"/>
 
     <application
-        android:label="nahdy"
+        android:label="Al-Nahdy"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:requestLegacyExternalStorage="true"> <!-- Enable legacy storage on Android 10 (Q) -->
         
         <activity

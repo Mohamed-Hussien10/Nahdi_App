@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nahdy/components/app_localizations.dart';
 import 'package:nahdy/components/cart_provider.dart';
 import 'package:nahdy/pages/product_details_page.dart';
 import 'package:provider/provider.dart';
@@ -60,7 +61,9 @@ Widget productCard(BuildContext context, String title, String imagePath,
                 imagePath,
               );
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Added to Cart!")),
+                SnackBar(
+                    content: Text(AppLocalizations.of(context)
+                        .translate('addedToCartMessage'))),
               );
             },
             style: ElevatedButton.styleFrom(
@@ -70,9 +73,9 @@ Widget productCard(BuildContext context, String title, String imagePath,
               ),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             ),
-            child: const Text(
-              'Add to Cart',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context).translate('addToCart'),
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 15,
                 fontWeight: FontWeight.bold,

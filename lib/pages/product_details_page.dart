@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:nahdy/components/app_localizations.dart';
 import 'package:nahdy/components/cart_provider.dart';
 import 'package:nahdy/components/wishlist_icon.dart';
 import 'package:provider/provider.dart';
@@ -117,7 +118,7 @@ class ProductDetailsPage extends StatelessWidget {
             ),
             const SizedBox(height: 50),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
                   onPressed: () {
@@ -128,7 +129,9 @@ class ProductDetailsPage extends StatelessWidget {
                       imagePath,
                     );
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Added to Cart!")),
+                      SnackBar(
+                          content: Text(AppLocalizations.of(context)
+                              .translate('addedToCartMessage'))),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -138,11 +141,12 @@ class ProductDetailsPage extends StatelessWidget {
                       side: const BorderSide(color: Colors.grey),
                     ),
                   ),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 12),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 12),
                     child: Text(
-                      'Add to cart',
-                      style: TextStyle(
+                      AppLocalizations.of(context).translate('addToCart'),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 22,

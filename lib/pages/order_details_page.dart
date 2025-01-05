@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
+import 'package:nahdy/components/app_localizations.dart';
 import 'package:nahdy/pages/home_page.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -214,9 +215,9 @@ class _ReceiptPageState extends State<ReceiptPage> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text('Success'),
-              content: Text(
-                  'Receipt saved to: $filePath\nYour order has been confirmed!'),
+              title: Text(AppLocalizations.of(context).translate('success')),
+              content:
+                  Text(AppLocalizations.of(context).translate('success_saved')),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -226,7 +227,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
                         MaterialPageRoute(
                             builder: (context) => const HomePage()));
                   },
-                  child: const Text('OK'),
+                  child: Text(AppLocalizations.of(context).translate('ok')),
                 ),
               ],
             );
@@ -242,6 +243,8 @@ class _ReceiptPageState extends State<ReceiptPage> {
 
   @override
   Widget build(BuildContext context) {
+    var t = AppLocalizations.of(context).translate;
+
     double totalPrice = widget.cartItems.fold<double>(
       0,
       (sum, item) {
@@ -257,7 +260,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Receipt'),
+          title: Text(t('receipt')),
           automaticallyImplyLeading: false,
         ),
         body: Padding(
@@ -282,16 +285,17 @@ class _ReceiptPageState extends State<ReceiptPage> {
               )),
               const Divider(thickness: 1, color: Colors.grey),
               // Recipient Details
-              Text('Recipient: ${widget.recipientName}',
+              Text('${t('recipient_name')}: ${widget.recipientName}',
                   style: const TextStyle(fontSize: 16)),
-              Text('Address: ${widget.address}',
+              Text('${t('address')}: ${widget.address}',
                   style: const TextStyle(fontSize: 16)),
-              Text('Phone: ${widget.phoneNumber}',
+              Text('${t('phone_number')}: ${widget.phoneNumber}',
                   style: const TextStyle(fontSize: 16)),
               const Divider(thickness: 1, color: Colors.grey),
               // Items List
-              const Text('Items:',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(t('items'),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               Expanded(
                 child: ListView.builder(
@@ -319,8 +323,8 @@ class _ReceiptPageState extends State<ReceiptPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Total',
-                        style: TextStyle(
+                    Text(t('total'),
+                        style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     Text(
                       '\$${totalPrice.toStringAsFixed(2)}',
@@ -343,9 +347,9 @@ class _ReceiptPageState extends State<ReceiptPage> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: const Text(
-                    'Download Receipt',
-                    style: TextStyle(
+                  child: Text(
+                    t('download_receipt'),
+                    style: const TextStyle(
                       fontSize: 15,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

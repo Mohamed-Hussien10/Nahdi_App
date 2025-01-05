@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nahdy/components/app_localizations.dart';
 import 'package:nahdy/components/cart_provider.dart';
 import 'package:nahdy/pages/check_out_page.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,7 @@ class CartPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context);
+    var t = AppLocalizations.of(context).translate;
 
     // Calculate total price
     final totalPrice = cart.items
@@ -16,9 +18,9 @@ class CartPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Cart',
-          style: TextStyle(
+        title: Text(
+          t('cart_page_title'),
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 24,
             color: Colors.white,
@@ -121,7 +123,7 @@ class CartPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Total Price: \$${totalPrice.toStringAsFixed(2)}',
+              '${t('total_price')}\$${totalPrice.toStringAsFixed(2)}',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
@@ -148,11 +150,11 @@ class CartPage extends StatelessWidget {
                 side: const BorderSide(color: Colors.grey),
               ),
             ),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 50, vertical: 12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 12),
               child: Text(
-                'Check out',
-                style: TextStyle(
+                t('check_out'),
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
