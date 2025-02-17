@@ -44,9 +44,9 @@ The **Al-Nahdi Medical Products App** is designed to streamline the process of p
    ```
 
 ## Future Enhancements
-- 🔹 **AI-powered Product Recommendations**
-- 🔹 **Live Chat Support**
-- 🔹 **Loyalty Program & Discounts**
+-  **AI-powered Product Recommendations**
+-  **Live Chat Support**
+-  **Loyalty Program & Discounts**
 
 ## Contributing
 Contributions are welcome! Please follow these steps:
